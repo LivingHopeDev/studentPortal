@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #2563eb; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 30px; background: #f9fafb; }
+        .button { display: inline-block; padding: 12px 30px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Verify Your Email</h1>
+        </div>
+        <div class="content">
+            <p>Dear <strong th:text="${name}">Student</strong>,</p>
+            <p>Thank you for registering. Please click the button below to verify your email address.</p>
+            <p style="text-align: center;">
+                <a class="button" th:href="${verificationUrl}">Verify Email</a>
+            </p>
+            <p>Or copy and paste this link in your browser:</p>
+            <p style="word-break: break-all; font-size: 12px; color: #6b7280;" th:text="${verificationUrl}">link</p>
+            <p>This link will expire in 24 hours.</p>
+            <p>If you did not create an account, please ignore this email.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 Student Management Portal. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
