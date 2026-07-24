@@ -1,0 +1,3483 @@
+{
+  "info": {
+    "name": "Student Management Portal API",
+    "description": "Complete API collection for the Student Management Portal. Uses Bearer JWT authentication.\n\n**Setup:**\n1. Set `base_url` variable to your server URL (default: http://localhost:8080)\n2. Call **POST Login** to get a JWT token\n3. The token is automatically saved to the `token` variable\n4. All protected endpoints use `{{token}}` in the Authorization header",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "opencode"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "student_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "staff_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Authentication endpoints (login, register, password management, MFA, user management)",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.accessToken) {",
+                  "        pm.collectionVariables.set('token', json.data.accessToken);",
+                  "    }",
+                  "    if (json.data && json.data.user && json.data.user.id) {",
+                  "        pm.collectionVariables.set('student_id', json.data.user.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@studentportal.edu\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticate and receive a JWT token. Token is auto-saved to the `token` variable.\n\n**Seed credentials:**\n- admin@studentportal.edu / password123 (ADMIN)\n- lecturer@studentportal.edu / password123 (STAFF)\n- finance@studentportal.edu / password123 (STAFF)\n- john.doe@studentportal.edu / password123 (STUDENT)\n- (and 9 other student accounts)"
+          }
+        },
+        {
+          "name": "Register (Student)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"<programme-uuid>\",\n    \"admissionDate\": \"2024-09-01\",\n    \"guardianName\": \"Mr. Robert Johnson\",\n    \"guardianPhone\": \"+2348023456789\",\n    \"guardianEmail\": \"robert.johnson@email.com\",\n    \"guardianRelationship\": \"PARENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new student. This is exposed without authentication.\n\n**Note:** Replace `<programme-uuid>` with an actual programme ID from GET /api/v1/academic/programmes."
+          }
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/verify-email?token=<verification-token>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "<verification-token>",
+                  "description": "Verification token received via email"
+                }
+              ]
+            },
+            "description": "Verify email address using the token sent to the user's email."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.**"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.**"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@studentportal.edu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password/forgot",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "forgot"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Request a password reset email."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"<reset-token>\",\n    \"newPassword\": \"NewP@ssw0rd\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password/reset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "reset"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Reset password using the token from the forgot password email."
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"currentPassword\": \"password123\",\n    \"newPassword\": \"NewP@ssw0rd\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password/change",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "change"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Change password for the currently authenticated user."
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get the currently authenticated user's profile."
+          }
+        },
+        {
+          "name": "MFA Setup",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/mfa/setup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "mfa",
+                "setup"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Setup multi-factor authentication."
+          }
+        },
+        {
+          "name": "MFA Verify",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/mfa/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "mfa",
+                "verify"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Verify a multi-factor authentication code."
+          }
+        },
+        {
+          "name": "MFA Validate",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/mfa/validate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "mfa",
+                "validate"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Validate an MFA token during login."
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users?page=0&size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** List all users (admin only)."
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fullName\": \"New User\",\n    \"email\": \"new.user@studentportal.edu\",\n    \"password\": \"P@ssw0rd\",\n    \"role\": \"STUDENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new user (admin only)."
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users/<user-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                "<user-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a user by ID (admin only)."
+          }
+        },
+        {
+          "name": "Update User Roles",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"roles\": [\"ADMIN\", \"STAFF\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users/<user-uuid>/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                "<user-uuid>",
+                "roles"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Update user roles (admin only)."
+          }
+        },
+        {
+          "name": "Update User Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users/<user-uuid>/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                "<user-uuid>",
+                "status"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Activate/deactivate/suspend a user."
+          }
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/audit-logs?page=0&size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get audit logs (admin only)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "description": "Student management endpoints (enrol, list, get, update, delete, photo, guardian, academic summary)",
+      "item": [
+        {
+          "name": "Enrol Student",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"<programme-uuid>\",\n    \"admissionDate\": \"2024-09-01\",\n    \"guardianName\": \"Mr. Robert Johnson\",\n    \"guardianPhone\": \"+2348023456789\",\n    \"guardianEmail\": \"robert.johnson@email.com\",\n    \"guardianRelationship\": \"PARENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ]
+            },
+            "description": "Enrol a new student. Public endpoint (no auth required).\n\n**Note:** Replace `<programme-uuid>` with an actual programme ID."
+          }
+        },
+        {
+          "name": "List Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students?page=0&size=20&sort=lastName,asc&status=ACTIVE&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "lastName,asc"
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true
+                },
+                {
+                  "key": "programmeId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List all students with optional filters. \u2705 Implemented."
+          }
+        },
+        {
+          "name": "Get Student by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}"
+              ]
+            },
+            "description": "Get a single student by ID. \u2705 Implemented.\n\nAfter logging in as a student, the student_id variable is auto-populated. You can also set it manually from the List Students response."
+          }
+        },
+        {
+          "name": "Update Student",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"<programme-uuid>\",\n    \"admissionDate\": \"2024-09-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Update an existing student."
+          }
+        },
+        {
+          "name": "Update Student Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"ACTIVE\",\n    \"reason\": \"Approved by admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}",
+                "status"
+              ]
+            },
+            "description": "Update student status (e.g., activate a pending student). \u2705 Implemented.\n\nValid statuses: ACTIVE, SUSPENDED, GRADUATED, WITHDRAWN"
+          }
+        },
+        {
+          "name": "Delete Student",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Delete a student."
+          }
+        },
+        {
+          "name": "Bulk Import Students",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "CSV or Excel file for bulk import"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/bulk-import",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "bulk-import"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Import students in bulk from a file."
+          }
+        },
+        {
+          "name": "Get Bulk Import Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/bulk-import/<job-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "bulk-import",
+                "<job-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get the status of a bulk import job."
+          }
+        },
+        {
+          "name": "Upload Student Photo",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "Photo file (JPEG, PNG)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}/photo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}",
+                "photo"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Upload a student's photo."
+          }
+        },
+        {
+          "name": "Get Student Photo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}/photo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}",
+                "photo"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a student's photo."
+          }
+        },
+        {
+          "name": "Get Student Guardian",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}/guardian",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}",
+                "guardian"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a student's guardian information."
+          }
+        },
+        {
+          "name": "Upsert Student Guardian",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"guardianName\": \"Mr. Robert Johnson\",\n    \"guardianPhone\": \"+2348023456789\",\n    \"guardianEmail\": \"robert.johnson@email.com\",\n    \"guardianRelationship\": \"PARENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}/guardian",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}",
+                "guardian"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Create or update a student's guardian."
+          }
+        },
+        {
+          "name": "Get Academic Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/{{student_id}}/academic-summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{student_id}}",
+                "academic-summary"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a student's complete academic summary."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Staff",
+      "description": "Staff management endpoints",
+      "item": [
+        {
+          "name": "Create Staff",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"David\",\n    \"lastName\": \"Williams\",\n    \"email\": \"david.williams@studentportal.edu\",\n    \"phone\": \"+2348012340001\",\n    \"department\": \"Computer Science\",\n    \"role\": \"LECTURER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new staff member."
+          }
+        },
+        {
+          "name": "List Staff",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff?page=0&size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** List all staff members."
+          }
+        },
+        {
+          "name": "Get Staff by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff/{{staff_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff",
+                "{{staff_id}}"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a single staff member by ID."
+          }
+        },
+        {
+          "name": "Update Staff",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"David\",\n    \"lastName\": \"Williams\",\n    \"email\": \"david.williams@studentportal.edu\",\n    \"phone\": \"+2348012340001\",\n    \"department\": \"Computer Science\",\n    \"role\": \"SENIOR_LECTURER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff/{{staff_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff",
+                "{{staff_id}}"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Update a staff member."
+          }
+        },
+        {
+          "name": "Update Staff Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff/{{staff_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff",
+                "{{staff_id}}",
+                "status"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Activate/deactivate a staff member.\n\nValid statuses: ACTIVE, INACTIVE, SUSPENDED"
+          }
+        },
+        {
+          "name": "Delete Staff",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff/{{staff_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff",
+                "{{staff_id}}"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Delete a staff member."
+          }
+        },
+        {
+          "name": "Upload Staff Photo",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "Photo file"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff/{{staff_id}}/photo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff",
+                "{{staff_id}}",
+                "photo"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Upload a staff member's photo."
+          }
+        },
+        {
+          "name": "Get Staff Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff/{{staff_id}}/schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff",
+                "{{staff_id}}",
+                "schedule"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a staff member's schedule."
+          }
+        },
+        {
+          "name": "Assign Subjects to Staff",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"subjectIds\": [\"<subject-uuid-1>\", \"<subject-uuid-2>\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff/{{staff_id}}/subjects",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff",
+                "{{staff_id}}",
+                "subjects"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Assign courses/subjects to a staff member."
+          }
+        },
+        {
+          "name": "Remove Subject from Staff",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/staff/{{staff_id}}/subjects/<subject-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "staff",
+                "{{staff_id}}",
+                "subjects",
+                "<subject-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Remove a subject assignment from a staff member."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Academic",
+      "description": "Academic module \u2014 courses, grades, GPA, programmes, periods, transcripts",
+      "item": [
+        {
+          "name": "Grades",
+          "item": [
+            {
+              "name": "Submit Grade",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"studentId\": \"<student-uuid>\",\n    \"subjectId\": \"<course-uuid>\",\n    \"periodId\": \"<semester-uuid>\",\n    \"score\": 85.5,\n    \"letterGrade\": \"A\",\n    \"remarks\": \"Excellent performance\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/grades",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "grades"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Submit a grade for a student."
+              }
+            },
+            {
+              "name": "List Grades",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/grades?studentId=&subjectId=&periodId=",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "grades"
+                  ],
+                  "query": [
+                    {
+                      "key": "studentId",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "subjectId",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "periodId",
+                      "value": "",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List grades with optional filters."
+              }
+            },
+            {
+              "name": "Get Student Grades",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/grades/student/<student-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "grades",
+                    "student",
+                    "<student-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Get all grades for a specific student."
+              }
+            },
+            {
+              "name": "Update Grade",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"studentId\": \"<student-uuid>\",\n    \"subjectId\": \"<course-uuid>\",\n    \"periodId\": \"<semester-uuid>\",\n    \"score\": 90.0,\n    \"letterGrade\": \"A\",\n    \"remarks\": \"Updated - excellent\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/grades/<grade-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "grades",
+                    "<grade-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Update an existing grade."
+              }
+            },
+            {
+              "name": "Publish Grades",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"periodId\": \"<semester-uuid>\",\n    \"subjectId\": \"<course-uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/grades/publish",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "grades",
+                    "publish"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Publish all grades for a course in a semester."
+              }
+            }
+          ]
+        },
+        {
+          "name": "GPA",
+          "item": [
+            {
+              "name": "Get Student GPA",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/gpa/student/<student-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "gpa",
+                    "student",
+                    "<student-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Get a student's GPA."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Subjects (Courses)",
+          "item": [
+            {
+              "name": "List Subjects",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/subjects",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "subjects"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List all courses/subjects."
+              }
+            },
+            {
+              "name": "Create Subject",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Machine Learning\",\n    \"code\": \"CSC501\",\n    \"credits\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/subjects",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "subjects"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new course/subject."
+              }
+            },
+            {
+              "name": "Update Subject",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Advanced Machine Learning\",\n    \"code\": \"CSC501\",\n    \"credits\": 4\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/subjects/<subject-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "subjects",
+                    "<subject-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Update a course/subject."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Programmes",
+          "item": [
+            {
+              "name": "List Programmes",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/programmes",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "programmes"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List all programmes."
+              }
+            },
+            {
+              "name": "Create Programme",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Data Science\",\n    \"code\": \"DS\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/programmes",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "programmes"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new programme."
+              }
+            },
+            {
+              "name": "Update Programme",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Data Science\",\n    \"code\": \"DS\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/programmes/<programme-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "programmes",
+                    "<programme-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Update a programme."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Periods (Semesters)",
+          "item": [
+            {
+              "name": "List Periods",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/periods",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "periods"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List all academic periods/semesters."
+              }
+            },
+            {
+              "name": "Create Period",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"2024/2025 Second Semester\",\n    \"startDate\": \"2025-02-01\",\n    \"endDate\": \"2025-06-15\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/periods",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "periods"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new academic period."
+              }
+            },
+            {
+              "name": "Update Period",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"2024/2025 Second Semester\",\n    \"startDate\": \"2025-02-01\",\n    \"endDate\": \"2025-06-15\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/periods/<period-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "periods",
+                    "<period-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Update an academic period."
+              }
+            },
+            {
+              "name": "Set Current Period",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/periods/<period-uuid>/set-current",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "periods",
+                    "<period-uuid>",
+                    "set-current"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Set the current active academic period."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Transcripts",
+          "item": [
+            {
+              "name": "Download Transcript",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/academic/transcripts/<student-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "academic",
+                    "transcripts",
+                    "<student-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Download a student's transcript."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "description": "Attendance management endpoints",
+      "item": [
+        {
+          "name": "Record Attendance",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"studentId\": \"<student-uuid>\",\n    \"sessionId\": \"<class-uuid>\",\n    \"date\": \"2024-10-15\",\n    \"status\": \"PRESENT\",\n    \"notes\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Record attendance for a single student.\n\nStatus values: PRESENT, ABSENT, LATE, EXCUSED"
+          }
+        },
+        {
+          "name": "Bulk Record Attendance",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"sessionId\": \"<class-uuid>\",\n    \"date\": \"2024-10-15\",\n    \"records\": [\n        {\n            \"studentId\": \"<student-uuid-1>\",\n            \"status\": \"PRESENT\",\n            \"notes\": \"\"\n        },\n        {\n            \"studentId\": \"<student-uuid-2>\",\n            \"status\": \"ABSENT\",\n            \"notes\": \"Sick\"\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "bulk"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Record attendance for multiple students at once."
+          }
+        },
+        {
+          "name": "List Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance?page=0&size=20&studentId=&sessionId=&date=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "studentId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sessionId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "date",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** List attendance records with filters."
+          }
+        },
+        {
+          "name": "Get Student Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance/student/<student-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "student",
+                "<student-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get all attendance records for a student."
+          }
+        },
+        {
+          "name": "Get Student Attendance Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance/student/<student-uuid>/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "student",
+                "<student-uuid>",
+                "summary"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get attendance summary for a student."
+          }
+        },
+        {
+          "name": "Update Attendance Record",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"studentId\": \"<student-uuid>\",\n    \"sessionId\": \"<class-uuid>\",\n    \"date\": \"2024-10-15\",\n    \"status\": \"EXCUSED\",\n    \"notes\": \"Doctor's appointment\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance/<attendance-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "<attendance-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Update an attendance record."
+          }
+        },
+        {
+          "name": "Get Class Attendance Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance/report/class/<class-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "report",
+                "class",
+                "<class-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get attendance report for a class."
+          }
+        },
+        {
+          "name": "Get Student Attendance PDF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance/report/student/<student-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "report",
+                "student",
+                "<student-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Download attendance report as PDF."
+          }
+        },
+        {
+          "name": "Get Absence Alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance/alerts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "alerts"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get absence alerts."
+          }
+        },
+        {
+          "name": "Update Alert Threshold",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"thresholdPercentage\": 75.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attendance/config/threshold",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "config",
+                "threshold"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Update the attendance alert threshold percentage."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Communication",
+      "description": "Messaging, announcements, notifications, and email templates",
+      "item": [
+        {
+          "name": "Messages",
+          "item": [
+            {
+              "name": "List Threads",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/messages?page=0&size=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "messages"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List message threads for the current user."
+              }
+            },
+            {
+              "name": "Send Message",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"recipientId\": \"<user-uuid>\",\n    \"subject\": \"Meeting Request\",\n    \"body\": \"Dear colleague, could we schedule a meeting to discuss the curriculum review?\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/messages",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "messages"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Send a message to another user."
+              }
+            },
+            {
+              "name": "Get Thread",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/messages/<thread-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "messages",
+                    "<thread-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Get all messages in a thread."
+              }
+            },
+            {
+              "name": "Reply to Thread",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"body\": \"Thank you for your message. I am available on Thursday at 2pm.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/messages/<thread-uuid>/reply",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "messages",
+                    "<thread-uuid>",
+                    "reply"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Reply to an existing message thread."
+              }
+            },
+            {
+              "name": "Mark Message as Read",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/messages/<message-uuid>/read",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "messages",
+                    "<message-uuid>",
+                    "read"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Mark a message as read."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Announcements",
+          "item": [
+            {
+              "name": "Create Announcement",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Exam Timetable Released\",\n    \"content\": \"The exam timetable for the current semester has been published.\",\n    \"audience\": \"ALL\",\n    \"priority\": \"HIGH\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/announcements",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "announcements"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new announcement.\n\nAudience: ALL, CLASS, ROLE, SPECIFIC"
+              }
+            },
+            {
+              "name": "List Announcements",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/announcements?page=0&size=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "announcements"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List all announcements."
+              }
+            },
+            {
+              "name": "Get Announcement",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/announcements/<announcement-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "announcements",
+                    "<announcement-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Get a single announcement."
+              }
+            },
+            {
+              "name": "Update Announcement",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Updated: Exam Timetable Released\",\n    \"content\": \"Updated exam timetable with venue changes.\",\n    \"audience\": \"ALL\",\n    \"priority\": \"HIGH\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/announcements/<announcement-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "announcements",
+                    "<announcement-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Update an announcement."
+              }
+            },
+            {
+              "name": "Delete Announcement",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/announcements/<announcement-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "announcements",
+                    "<announcement-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Delete an announcement."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Notifications",
+          "item": [
+            {
+              "name": "List Inbox",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/notifications?page=0&size=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "notifications"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List notifications for the current user."
+              }
+            },
+            {
+              "name": "Mark Notification as Read",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/notifications/<notification-uuid>/read",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "notifications",
+                    "<notification-uuid>",
+                    "read"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Mark a single notification as read."
+              }
+            },
+            {
+              "name": "Clear All Notifications",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/notifications/clear",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "notifications",
+                    "clear"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Clear all notifications for the current user."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Templates",
+          "item": [
+            {
+              "name": "List Templates",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/templates",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "templates"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List notification templates."
+              }
+            },
+            {
+              "name": "Update Template",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"subject\": \"Your Grade Has Been Published\",\n    \"body\": \"Dear {{student}},\\n\\nYour grade for {{course}} has been published.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/communication/templates/<template-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "communication",
+                    "templates",
+                    "<template-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Update a notification template."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Scheduling",
+      "description": "Rooms (venues), exams, and timetables",
+      "item": [
+        {
+          "name": "Rooms (Venues)",
+          "item": [
+            {
+              "name": "List Rooms",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/rooms",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "rooms"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List all rooms/venues."
+              }
+            },
+            {
+              "name": "Create Room",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Lecture Hall D\",\n    \"building\": \"Science Building\",\n    \"capacity\": 120\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/rooms",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "rooms"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new room/venue."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exams",
+          "item": [
+            {
+              "name": "Create Exam",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"subjectId\": \"<course-uuid>\",\n    \"classId\": \"<class-uuid>\",\n    \"date\": \"2024-12-10\",\n    \"startTime\": \"09:00\",\n    \"endTime\": \"11:00\",\n    \"venueId\": \"<venue-uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/exams",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "exams"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Schedule an exam."
+              }
+            },
+            {
+              "name": "List Exams",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/exams?page=0&size=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "exams"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List all exams."
+              }
+            },
+            {
+              "name": "Update Exam",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"subjectId\": \"<course-uuid>\",\n    \"classId\": \"<class-uuid>\",\n    \"date\": \"2024-12-12\",\n    \"startTime\": \"10:00\",\n    \"endTime\": \"12:00\",\n    \"venueId\": \"<venue-uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/exams/<exam-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "exams",
+                    "<exam-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Update an exam."
+              }
+            },
+            {
+              "name": "Delete Exam",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/exams/<exam-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "exams",
+                    "<exam-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Delete an exam."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Timetable",
+          "item": [
+            {
+              "name": "Create Timetable Entry",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"classId\": \"<class-uuid>\",\n    \"subjectId\": \"<course-uuid>\",\n    \"staffId\": \"<staff-uuid>\",\n    \"venueId\": \"<venue-uuid>\",\n    \"day\": \"MONDAY\",\n    \"startTime\": \"08:00\",\n    \"endTime\": \"09:30\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/timetable",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "timetable"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a timetable entry.\n\nDays: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY"
+              }
+            },
+            {
+              "name": "List Timetable Entries",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/timetable?classId=&staffId=",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "timetable"
+                  ],
+                  "query": [
+                    {
+                      "key": "classId",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "staffId",
+                      "value": "",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** List timetable entries with optional filters."
+              }
+            },
+            {
+              "name": "Update Timetable Entry",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"classId\": \"<class-uuid>\",\n    \"subjectId\": \"<course-uuid>\",\n    \"staffId\": \"<staff-uuid>\",\n    \"venueId\": \"<venue-uuid>\",\n    \"day\": \"WEDNESDAY\",\n    \"startTime\": \"10:00\",\n    \"endTime\": \"11:30\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/timetable/<timetable-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "timetable",
+                    "<timetable-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Update a timetable entry."
+              }
+            },
+            {
+              "name": "Delete Timetable Entry",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/timetable/<timetable-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "timetable",
+                    "<timetable-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Delete a timetable entry."
+              }
+            },
+            {
+              "name": "Get Class Timetable",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/timetable/class/<class-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "timetable",
+                    "class",
+                    "<class-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Get timetable for a specific class."
+              }
+            },
+            {
+              "name": "Get Staff Schedule",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/timetable/staff/<staff-uuid>",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "timetable",
+                    "staff",
+                    "<staff-uuid>"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Get timetable for a specific staff member."
+              }
+            },
+            {
+              "name": "Check Conflicts",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"classId\": \"<class-uuid>\",\n    \"subjectId\": \"<course-uuid>\",\n    \"staffId\": \"<staff-uuid>\",\n    \"venueId\": \"<venue-uuid>\",\n    \"day\": \"MONDAY\",\n    \"startTime\": \"08:00\",\n    \"endTime\": \"09:30\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/timetable/check-conflicts",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "timetable",
+                    "check-conflicts"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Check for scheduling conflicts."
+              }
+            },
+            {
+              "name": "Export Timetable ICS",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/schedules/timetable/<timetable-uuid>/export.ics",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "schedules",
+                    "timetable",
+                    "<timetable-uuid>",
+                    "export.ics"
+                  ]
+                },
+                "description": "**\u26a0 STUB \u2014 Not implemented.** Export timetable entry as iCalendar file."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fees",
+      "description": "Fee schedules, invoices, payments, receipts, and fee reports",
+      "item": [
+        {
+          "name": "List Fee Schedules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/schedules",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "schedules"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** List all fee schedules."
+          }
+        },
+        {
+          "name": "Create Fee Schedule",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"2024/2025 Tuition\",\n    \"amount\": 570000.00,\n    \"periodId\": \"<semester-uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/schedules",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "schedules"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new fee schedule."
+          }
+        },
+        {
+          "name": "Update Fee Schedule",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"2024/2025 Tuition\",\n    \"amount\": 600000.00,\n    \"periodId\": \"<semester-uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/schedules/<schedule-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "schedules",
+                "<schedule-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Update a fee schedule."
+          }
+        },
+        {
+          "name": "Generate Invoice",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"studentId\": \"<student-uuid>\",\n    \"scheduleId\": \"<schedule-uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/invoices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "invoices"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Generate an invoice for a student."
+          }
+        },
+        {
+          "name": "Bulk Generate Invoices",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"scheduleId\": \"<schedule-uuid>\",\n    \"periodId\": \"<semester-uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/invoices/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "invoices",
+                "bulk"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Generate invoices for all students in a programme."
+          }
+        },
+        {
+          "name": "List Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/invoices?page=0&size=20&studentId=&status=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "invoices"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "studentId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** List invoices with filters.\n\nStatus values: PENDING, PARTIAL, PAID, OVERDUE, CANCELLED"
+          }
+        },
+        {
+          "name": "Get Invoice",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/invoices/<invoice-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "invoices",
+                "<invoice-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a single invoice."
+          }
+        },
+        {
+          "name": "Get Student Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/invoices/student/<student-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "invoices",
+                "student",
+                "<student-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get all invoices for a student."
+          }
+        },
+        {
+          "name": "Initiate Payment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"invoiceId\": \"<invoice-uuid>\",\n    \"amount\": 570000,\n    \"gateway\": \"PAYSTACK\",\n    \"callbackUrl\": \"http://localhost:8080/api/v1/fees/payments/callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/payments/initiate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "payments",
+                "initiate"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Initiate a payment via a gateway.\n\nGateways: PAYSTACK, FLUTTERWAVE"
+          }
+        },
+        {
+          "name": "Payment Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Gateway-Signature",
+                "value": "<gateway-signature>",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"event\": \"charge.success\",\n    \"data\": {\n        \"reference\": \"PAY-REF-1234\",\n        \"status\": \"success\",\n        \"amount\": 570000\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/payments/webhook",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "payments",
+                "webhook"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Payment gateway webhook endpoint.\n\nRequires `X-Gateway-Signature` header for verification."
+          }
+        },
+        {
+          "name": "Get Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/payments/<payment-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "payments",
+                "<payment-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a single payment."
+          }
+        },
+        {
+          "name": "Download Receipt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/receipts/<payment-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "receipts",
+                "<payment-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Download a payment receipt."
+          }
+        },
+        {
+          "name": "Get Fee Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/report/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "report",
+                "summary"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get fee collection summary."
+          }
+        },
+        {
+          "name": "Get Outstanding Balances",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fees/report/outstanding",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "report",
+                "outstanding"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get all outstanding fee balances."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "description": "Dashboard and report endpoints",
+      "item": [
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "dashboard"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get dashboard statistics."
+          }
+        },
+        {
+          "name": "Enrolment Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/enrolment",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "enrolment"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get enrolment report."
+          }
+        },
+        {
+          "name": "Export Enrolment Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/enrolment/export?format=PDF&from=&to=&programmeId=&classId=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "enrolment",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "PDF"
+                },
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "programmeId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "classId",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Export enrolment report.\n\nFormats: PDF, CSV, XLSX"
+          }
+        },
+        {
+          "name": "Attendance Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "attendance"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get attendance report."
+          }
+        },
+        {
+          "name": "Export Attendance Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/attendance/export?format=PDF&from=&to=&programmeId=&classId=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "attendance",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "PDF"
+                },
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "programmeId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "classId",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Export attendance report."
+          }
+        },
+        {
+          "name": "Grade Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/grades",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "grades"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get grade report."
+          }
+        },
+        {
+          "name": "Export Grade Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/grades/export?format=PDF&from=&to=&programmeId=&classId=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "grades",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "PDF"
+                },
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "programmeId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "classId",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Export grade report."
+          }
+        },
+        {
+          "name": "Fee Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/fees",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "fees"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Get fee report."
+          }
+        },
+        {
+          "name": "Export Fee Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/fees/export?format=PDF&from=&to=&programmeId=&classId=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "fees",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "PDF"
+                },
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "programmeId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "classId",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Export fee report."
+          }
+        },
+        {
+          "name": "Run Custom Report",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"queryType\": \"student_enrolment\",\n    \"filters\": {\n        \"programme\": \"CS\",\n        \"status\": \"ACTIVE\"\n    },\n    \"format\": \"PDF\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/custom",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "custom"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Run a custom report."
+          }
+        },
+        {
+          "name": "Poll Custom Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/custom/<job-uuid>",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "custom",
+                "<job-uuid>"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Poll the status of a custom report job."
+          }
+        },
+        {
+          "name": "Download Custom Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/custom/<job-uuid>/download",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "custom",
+                "<job-uuid>",
+                "download"
+              ]
+            },
+            "description": "**\u26a0 STUB \u2014 Not implemented.** Download a completed custom report."
+          }
+        }
+      ]
+    }
+  ]
+}

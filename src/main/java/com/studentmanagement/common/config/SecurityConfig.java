@@ -2,6 +2,7 @@ package com.studentmanagement.common.config;
 
 import com.studentmanagement.auth.repository.UserRepository;
 import com.studentmanagement.common.security.JwtFilter;
+import com.studentmanagement.common.security.RestAuthenticationEntryPoint;
 import com.studentmanagement.common.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final UserRepository userRepository;
 
     @Bean
@@ -42,10 +44,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/password/forgot").permitAll()
                 .requestMatchers("/api/v1/auth/password/reset").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/students").permitAll()
-                .requestMatchers("/api-docs/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

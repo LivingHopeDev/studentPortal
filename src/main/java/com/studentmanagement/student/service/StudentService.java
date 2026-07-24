@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,10 +50,6 @@ public class StudentService {
     @Transactional
     public StudentResponse enrolStudent(EnrolmentRequest request) {
         if (request.getEmail() != null && studentRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Email already registered");
-        }
-
-        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("Email already registered");
         }
 
@@ -158,6 +155,45 @@ public class StudentService {
                 student.getProgramme() != null ? student.getProgramme().getName() : null);
     }
 
+    @Transactional(readOnly = true)
+    public StudentResponse getStudent(UUID id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
+        return mapToResponse(student,
+                student.getProgramme() != null ? student.getProgramme().getName() : null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<StudentResponse> listStudents(int page, int size, String sort, String status,
+                                               UUID programmeId, String search) {
+        List<Student> students = studentRepository.findAll();
+        List<Student> filtered = students;
+
+        if (status != null && !status.isBlank()) {
+            filtered = filtered.stream()
+                    .filter(s -> s.getStatus() != null && s.getStatus().name().equalsIgnoreCase(status))
+                    .collect(Collectors.toList());
+        }
+        if (programmeId != null) {
+            filtered = filtered.stream()
+                    .filter(s -> s.getProgramme() != null && programmeId.equals(s.getProgramme().getId()))
+                    .collect(Collectors.toList());
+        }
+        if (search != null && !search.isBlank()) {
+            String q = search.toLowerCase();
+            filtered = filtered.stream()
+                    .filter(s -> (s.getFirstName() != null && s.getFirstName().toLowerCase().contains(q))
+                            || (s.getLastName() != null && s.getLastName().toLowerCase().contains(q))
+                            || (s.getEmail() != null && s.getEmail().toLowerCase().contains(q))
+                            || (s.getStudentNo() != null && s.getStudentNo().toLowerCase().contains(q)))
+                    .collect(Collectors.toList());
+        }
+
+        return filtered.stream()
+                .map(s -> mapToResponse(s, s.getProgramme() != null ? s.getProgramme().getName() : null))
+                .collect(Collectors.toList());
+    }
+
     private String generateStudentNumber() {
         String year = String.valueOf(Year.now().getValue());
         String prefix = "STU-" + year + "-";
@@ -187,7 +223,7 @@ public class StudentService {
                 .firstName(student.getFirstName())
                 .lastName(student.getLastName())
                 .dateOfBirth(student.getDateOfBirth())
-                .gender(student.getGender().name())
+                .gender(student.getGender() != null ? student.getGender().name() : null)
                 .nationality(student.getNationality())
                 .email(student.getEmail())
                 .phone(student.getPhone())

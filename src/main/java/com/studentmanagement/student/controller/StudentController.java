@@ -36,12 +36,14 @@ public class StudentController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) UUID programmeId,
             @RequestParam(required = false) String search) {
-        return null;
+        List<StudentResponse> response = studentService.listStudents(page, size, sort, status, programmeId, search);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<StudentResponse>> getStudent(@PathVariable UUID id) {
-        return null;
+        StudentResponse response = studentService.getStudent(id);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PutMapping("/{id}")
