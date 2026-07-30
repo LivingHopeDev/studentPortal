@@ -1,8 +1,13 @@
 package com.studentmanagement.communication.controller;
 
 import com.studentmanagement.common.dto.ApiResponse;
-import com.studentmanagement.communication.dto.*;
+import com.studentmanagement.communication.dto.MessageResponse;
+import com.studentmanagement.communication.dto.ReplyRequest;
+import com.studentmanagement.communication.dto.SendMessageRequest;
+import com.studentmanagement.communication.dto.ThreadResponse;
+import com.studentmanagement.communication.service.MessageService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,40 +18,42 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/communication/messages")
+@RequiredArgsConstructor
 public class MessageController {
+
+    private final MessageService messageService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ThreadResponse>>> listThreads(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        log.warn("List threads endpoint not implemented");
-        return null;
+        List<ThreadResponse> response = messageService.listThreads(page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<MessageResponse>> send(@Valid @RequestBody SendMessageRequest request) {
-        log.warn("Send message endpoint not implemented");
-        return null;
+        MessageResponse response = messageService.send(request);
+        return ResponseEntity.ok(ApiResponse.success("Message sent", response));
     }
 
     @GetMapping("/{threadId}")
     public ResponseEntity<ApiResponse<List<MessageResponse>>> getThread(@PathVariable UUID threadId) {
-        log.warn("Get thread endpoint not implemented for id: {}", threadId);
-        return null;
+        List<MessageResponse> response = messageService.getThread(threadId);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping("/{threadId}/reply")
     public ResponseEntity<ApiResponse<MessageResponse>> reply(
             @PathVariable UUID threadId,
             @Valid @RequestBody ReplyRequest request) {
-        log.warn("Reply to thread endpoint not implemented for id: {}", threadId);
-        return null;
+        MessageResponse response = messageService.reply(threadId, request);
+        return ResponseEntity.ok(ApiResponse.success("Reply sent", response));
     }
 
     @PatchMapping("/{id}/read")
     public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable UUID id) {
-        log.warn("Mark message as read endpoint not implemented for id: {}", id);
-        return null;
+        messageService.markAsRead(id);
+        return ResponseEntity.ok(ApiResponse.success("Message marked as read", null));
     }
-
 }

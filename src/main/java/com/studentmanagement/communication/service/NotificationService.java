@@ -1,10 +1,15 @@
 package com.studentmanagement.communication.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import com.studentmanagement.communication.dto.NotificationDto;
 
-@Slf4j
-@Service
-public class NotificationService {
+import java.util.List;
+import java.util.UUID;
 
+public interface NotificationService {
+
+    List<NotificationDto> getInbox();
+
+    void markAsRead(UUID id);
+
+    void clearAll();
 }

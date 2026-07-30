@@ -45,13 +45,8 @@ All 14 endpoints implemented across Grades, GPA, Transcripts, Subjects, and Peri
 ## 6. Attendance — ✅ complete
 All 10 endpoints implemented.
 
-## 7. Communication
-| Module | Endpoints | Status |
-|---|---|---|
-| Announcements | 5 | ❌ |
-| Notifications | 3 | ❌ |
-| Messages | 5 | ❌ |
-| Templates | 2 | ❌ |
+## 7. Communication — ✅ complete
+All 15 endpoints implemented across Announcements, Messages, Notifications, and Templates.
 
 ## 8. Fees — ✅ complete
 All 14 endpoints implemented across Schedules, Invoices, Payments, and Reports.

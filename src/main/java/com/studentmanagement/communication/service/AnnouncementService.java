@@ -1,10 +1,20 @@
 package com.studentmanagement.communication.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import com.studentmanagement.communication.dto.AnnouncementRequest;
+import com.studentmanagement.communication.dto.AnnouncementResponse;
 
-@Slf4j
-@Service
-public class AnnouncementService {
+import java.util.List;
+import java.util.UUID;
 
+public interface AnnouncementService {
+
+    AnnouncementResponse create(AnnouncementRequest request);
+
+    List<AnnouncementResponse> list();
+
+    AnnouncementResponse get(UUID id);
+
+    AnnouncementResponse update(UUID id, AnnouncementRequest request);
+
+    void delete(UUID id);
 }

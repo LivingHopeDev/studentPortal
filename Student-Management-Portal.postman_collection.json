@@ -2040,7 +2040,7 @@
                     }
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List message threads for the current user."
+                "description": "List message threads for the current user."
               }
             },
             {
@@ -2069,7 +2069,7 @@
                     "messages"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Send a message to another user."
+                "description": "Send a message to another user."
               }
             },
             {
@@ -2090,7 +2090,7 @@
                     "<thread-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Get all messages in a thread."
+                "description": "Get all messages in a thread."
               }
             },
             {
@@ -2121,7 +2121,7 @@
                     "reply"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Reply to an existing message thread."
+                "description": "Reply to an existing message thread."
               }
             },
             {
@@ -2143,7 +2143,7 @@
                     "read"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Mark a message as read."
+                "description": "Mark a message as read."
               }
             }
           ]
@@ -2177,7 +2177,7 @@
                     "announcements"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new announcement.\n\nAudience: ALL, CLASS, ROLE, SPECIFIC"
+                "description": "Create a new announcement.\n\nAudience: ALL, CLASS, ROLE, SPECIFIC"
               }
             },
             {
@@ -2207,7 +2207,7 @@
                     }
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List all announcements."
+                "description": "List all announcements."
               }
             },
             {
@@ -2228,7 +2228,7 @@
                     "<announcement-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Get a single announcement."
+                "description": "Get a single announcement."
               }
             },
             {
@@ -2258,7 +2258,7 @@
                     "<announcement-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Update an announcement."
+                "description": "Update an announcement."
               }
             },
             {
@@ -2279,7 +2279,7 @@
                     "<announcement-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Delete an announcement."
+                "description": "Delete an announcement."
               }
             }
           ]
@@ -2314,7 +2314,7 @@
                     }
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List notifications for the current user."
+                "description": "List notifications for the current user."
               }
             },
             {
@@ -2336,7 +2336,7 @@
                     "read"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Mark a single notification as read."
+                "description": "Mark a single notification as read."
               }
             },
             {
@@ -2357,7 +2357,7 @@
                     "clear"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Clear all notifications for the current user."
+                "description": "Clear all notifications for the current user."
               }
             }
           ]
@@ -2382,7 +2382,7 @@
                     "templates"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List notification templates."
+                "description": "List notification templates."
               }
             },
             {
@@ -2412,7 +2412,7 @@
                     "<template-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Update a notification template."
+                "description": "Update a notification template."
               }
             }
           ]

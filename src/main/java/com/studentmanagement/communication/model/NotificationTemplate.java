@@ -1,7 +1,5 @@
 package com.studentmanagement.communication.model;
 
-import com.studentmanagement.auth.model.User;
-import com.studentmanagement.common.enums.MessageAudience;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -12,42 +10,27 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "announcements")
+@Table(name = "notification_templates")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class Announcement {
+public class NotificationTemplate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
-    private String title;
+    private String name;
+
+    @Column(nullable = false, length = 500)
+    private String subject;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String body;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private MessageAudience audience = MessageAudience.ALL;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
-
-    @Column(name = "published_at")
-    private Instant publishedAt;
-
-    @Column(name = "expires_at")
-    private Instant expiresAt;
-
-    @Column(length = 20)
-    @Builder.Default
-    private String priority = "NORMAL";
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
