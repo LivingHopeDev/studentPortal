@@ -1,10 +1,10 @@
 package com.studentmanagement.staff.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import com.studentmanagement.staff.dto.StaffScheduleResponse;
 
-@Slf4j
-@Service
-public class StaffScheduleService {
+import java.util.UUID;
 
+public interface StaffScheduleService {
+
+    StaffScheduleResponse getSchedule(UUID staffId);
 }

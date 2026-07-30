@@ -33,8 +33,7 @@
 All 13 endpoints implemented.
 
 ## 3. Staff — ✅ complete
-Create, list, get, update, status, delete all implemented.
-Photo, schedule, subjects remain TBD.
+All 10 endpoints implemented (create, list, get, update, status, delete, photo, schedule, assign subjects, remove subject).
 
 ## 4. Programmes — ✅ complete
 List + create implemented. Update TBD.

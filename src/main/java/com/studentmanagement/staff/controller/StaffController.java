@@ -2,6 +2,7 @@ package com.studentmanagement.staff.controller;
 
 import com.studentmanagement.common.dto.ApiResponse;
 import com.studentmanagement.staff.dto.*;
+import com.studentmanagement.staff.service.StaffScheduleService;
 import com.studentmanagement.staff.service.StaffService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class StaffController {
 
     private final StaffService staffService;
+    private final StaffScheduleService staffScheduleService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<StaffResponse>> createStaff(@Valid @RequestBody StaffRequest request) {
@@ -76,30 +78,33 @@ public class StaffController {
     public ResponseEntity<ApiResponse<StaffPhotoResponse>> uploadPhoto(
             @PathVariable UUID id,
             @RequestParam MultipartFile file) {
-        log.warn("Staff photo upload endpoint not implemented for id: {}", id);
-        return null;
+        log.info("Uploading photo for staff: {}", id);
+        StaffPhotoResponse response = staffService.uploadPhoto(id, file);
+        return ResponseEntity.ok(ApiResponse.success("Photo uploaded", response));
     }
 
     @GetMapping("/{id}/schedule")
     public ResponseEntity<ApiResponse<StaffScheduleResponse>> getSchedule(@PathVariable UUID id) {
-        log.warn("Get staff schedule endpoint not implemented for id: {}", id);
-        return null;
+        log.debug("Fetching schedule for staff: {}", id);
+        StaffScheduleResponse response = staffScheduleService.getSchedule(id);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping("/{id}/subjects")
     public ResponseEntity<ApiResponse<StaffResponse>> assignSubjects(
             @PathVariable UUID id,
             @Valid @RequestBody AssignSubjectsRequest request) {
-        log.warn("Assign subjects endpoint not implemented for id: {}", id);
-        return null;
+        log.info("Assigning subjects to staff: {}", id);
+        StaffResponse response = staffService.assignSubjects(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Subjects assigned", response));
     }
 
     @DeleteMapping("/{id}/subjects/{subjectId}")
     public ResponseEntity<ApiResponse<Void>> removeSubject(
             @PathVariable UUID id,
             @PathVariable UUID subjectId) {
-        log.warn("Remove subject endpoint not implemented for id: {}", id);
-        return null;
+        log.info("Removing subject from staff: {}, subject: {}", id, subjectId);
+        staffService.removeSubject(id, subjectId);
+        return ResponseEntity.ok(ApiResponse.success("Subject removed", null));
     }
-
 }

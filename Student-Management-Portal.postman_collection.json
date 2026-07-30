@@ -1022,7 +1022,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** List all staff members."
+            "description": "List all staff members."
           }
         },
         {
@@ -1042,7 +1042,7 @@
                 "{{staff_id}}"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a single staff member by ID."
+            "description": "Get a single staff member by ID."
           }
         },
         {
@@ -1101,7 +1101,7 @@
                 "status"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Activate/deactivate a staff member.\n\nValid statuses: ACTIVE, INACTIVE, SUSPENDED"
+            "description": "Activate/deactivate a staff member.\n\nValid statuses: ACTIVE, INACTIVE, SUSPENDED"
           }
         },
         {
@@ -1121,7 +1121,7 @@
                 "{{staff_id}}"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Delete a staff member."
+            "description": "Delete a staff member."
           }
         },
         {
@@ -1153,7 +1153,7 @@
                 "photo"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Upload a staff member's photo."
+            "description": "Upload a staff member's photo.\n\nAccepts image files (JPEG, PNG, etc.)."
           }
         },
         {
@@ -1174,7 +1174,7 @@
                 "schedule"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a staff member's schedule."
+            "description": "Get a staff member's schedule.\n\nReturns timetable entries mapped from the scheduling module."
           }
         },
         {
@@ -1204,7 +1204,7 @@
                 "subjects"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Assign courses/subjects to a staff member."
+            "description": "Assign courses/subjects to a staff member."
           }
         },
         {
@@ -1226,7 +1226,7 @@
                 "<subject-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Remove a subject assignment from a staff member."
+            "description": "Remove a subject assignment from a staff member."
           }
         }
       ]
