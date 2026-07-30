@@ -22,6 +22,7 @@ public class StaffRequest {
 
     private String phone;
     private String department;
+    private String designation;
     private String role;
 
 }

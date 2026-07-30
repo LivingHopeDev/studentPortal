@@ -41,14 +41,32 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
+logging:
+  level:
+    com.studentmanagement: INFO
+    org.springframework: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql: WARN
+    org.flywaydb: WARN
+  file:
+    path: logs
+
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+
 app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
+  upload:
+    path: ${APP_UPLOAD_PATH:uploads}
   mail:
     from: ${MAIL_FROM:noreply@studentportal.edu}
   jwt:

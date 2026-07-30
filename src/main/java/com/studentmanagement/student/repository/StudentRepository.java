@@ -4,6 +4,7 @@ import com.studentmanagement.student.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,4 +18,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
     boolean existsByEmail(String email);
 
     boolean existsByStudentNo(String studentNo);
+
+    List<Student> findByProgrammeId(UUID programmeId);
 }

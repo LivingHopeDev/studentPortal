@@ -1,8 +1,9 @@
 package com.studentmanagement.fees.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -11,13 +12,14 @@ import lombok.*;
 @Builder
 public class FeeScheduleRequest {
 
-    @NotBlank
-    private String name;
+    @NotNull
+    private UUID programmeId;
 
     @NotNull
-    private Double amount;
+    private UUID semesterId;
 
-    @NotBlank
-    private String periodId;
+    private String components;
 
+    @NotNull
+    private Double totalAmount;
 }

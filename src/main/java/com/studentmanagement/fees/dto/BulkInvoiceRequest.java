@@ -1,6 +1,5 @@
 package com.studentmanagement.fees.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -16,7 +15,6 @@ public class BulkInvoiceRequest {
     @NotNull
     private UUID scheduleId;
 
-    @NotBlank
-    private String periodId;
-
+    @NotNull
+    private UUID semesterId;
 }

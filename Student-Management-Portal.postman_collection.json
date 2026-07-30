@@ -25,6 +25,21 @@
       "key": "staff_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "programme_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "auth": {
@@ -54,8 +69,11 @@
                   "    if (json.data && json.data.accessToken) {",
                   "        pm.collectionVariables.set('token', json.data.accessToken);",
                   "    }",
+                  "    if (json.data && json.data.refreshToken) {",
+                  "        pm.collectionVariables.set('refresh_token', json.data.refreshToken);",
+                  "    }",
                   "    if (json.data && json.data.user && json.data.user.id) {",
-                  "        pm.collectionVariables.set('student_id', json.data.user.id);",
+                  "        pm.collectionVariables.set('user_id', json.data.user.id);",
                   "    }",
                   "}"
                 ],
@@ -87,7 +105,7 @@
                 "login"
               ]
             },
-            "description": "Authenticate and receive a JWT token. Token is auto-saved to the `token` variable.\n\n**Seed credentials:**\n- admin@studentportal.edu / password123 (ADMIN)\n- lecturer@studentportal.edu / password123 (STAFF)\n- finance@studentportal.edu / password123 (STAFF)\n- john.doe@studentportal.edu / password123 (STUDENT)\n- (and 9 other student accounts)"
+            "description": "Authenticate with email and password. Token, refresh token, and user ID are auto-captured."
           }
         },
         {
@@ -97,7 +115,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"<programme-uuid>\",\n    \"admissionDate\": \"2024-09-01\",\n    \"guardianName\": \"Mr. Robert Johnson\",\n    \"guardianPhone\": \"+2348023456789\",\n    \"guardianEmail\": \"robert.johnson@email.com\",\n    \"guardianRelationship\": \"PARENT\"\n}",
+              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"{{programme_id}}\",\n    \"admissionDate\": \"2024-09-01\",\n    \"guardianName\": \"Mr. Robert Johnson\",\n    \"guardianPhone\": \"+2348023456789\",\n    \"guardianEmail\": \"robert.johnson@email.com\",\n    \"guardianRelationship\": \"PARENT\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -143,7 +161,7 @@
                 }
               ]
             },
-            "description": "Verify email address using the token sent to the user's email."
+            "description": "Verify email using the token from the verification email."
           }
         },
         {
@@ -163,7 +181,16 @@
                 "refresh"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.**"
+            "description": "Refresh the access token using a valid refresh token.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
@@ -183,7 +210,16 @@
                 "logout"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.**"
+            "description": "Logout and invalidate the refresh token.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
@@ -213,7 +249,7 @@
                 "forgot"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Request a password reset email."
+            "description": "Request a password reset email."
           }
         },
         {
@@ -243,7 +279,7 @@
                 "reset"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Reset password using the token from the forgot password email."
+            "description": "Reset password using the token from the forgot-password email."
           }
         },
         {
@@ -273,7 +309,7 @@
                 "change"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Change password for the currently authenticated user."
+            "description": "Change password by providing current and new password."
           }
         },
         {
@@ -293,7 +329,7 @@
                 "me"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get the currently authenticated user's profile."
+            "description": "Get the currently authenticated user profile."
           }
         },
         {
@@ -314,7 +350,7 @@
                 "setup"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Setup multi-factor authentication."
+            "description": "Setup multi-factor authentication. Sends a 6-digit code to your email."
           }
         },
         {
@@ -344,7 +380,7 @@
                 "verify"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Verify a multi-factor authentication code."
+            "description": "Verify MFA setup by providing the code sent to your email."
           }
         },
         {
@@ -374,7 +410,7 @@
                 "validate"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Validate an MFA token during login."
+            "description": "Validate MFA code during login. A new code is sent to your email on each request."
           }
         },
         {
@@ -404,7 +440,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** List all users (admin only)."
+            "description": "List all users with pagination."
           }
         },
         {
@@ -433,8 +469,24 @@
                 "users"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new user (admin only)."
-          }
+            "description": "Create a new user account."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.collectionVariables.set('user_id', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get User by ID",
@@ -442,19 +494,20 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/auth/users/<user-uuid>",
+              "raw": "{{base_url}}/api/v1/auth/users/{{user_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
+                "{{base_url}}",
                 "api",
                 "v1",
                 "auth",
                 "users",
-                "<user-uuid>"
+                "{{user_id}}"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a user by ID (admin only)."
+            "description": "Get a user by ID."
           }
         },
         {
@@ -472,20 +525,21 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/auth/users/<user-uuid>/roles",
+              "raw": "{{base_url}}/api/v1/auth/users/{{user_id}}/roles",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
+                "{{base_url}}",
                 "api",
                 "v1",
                 "auth",
                 "users",
-                "<user-uuid>",
+                "{{user_id}}",
                 "roles"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Update user roles (admin only)."
+            "description": "Update roles for a user."
           }
         },
         {
@@ -503,20 +557,21 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/auth/users/<user-uuid>/status",
+              "raw": "{{base_url}}/api/v1/auth/users/{{user_id}}/status",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
+                "{{base_url}}",
                 "api",
                 "v1",
                 "auth",
                 "users",
-                "<user-uuid>",
+                "{{user_id}}",
                 "status"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Activate/deactivate/suspend a user."
+            "description": "Update status for a user."
           }
         },
         {
@@ -546,7 +601,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get audit logs (admin only)."
+            "description": "Retrieve paginated audit logs."
           }
         }
       ]
@@ -562,7 +617,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"<programme-uuid>\",\n    \"admissionDate\": \"2024-09-01\",\n    \"guardianName\": \"Mr. Robert Johnson\",\n    \"guardianPhone\": \"+2348023456789\",\n    \"guardianEmail\": \"robert.johnson@email.com\",\n    \"guardianRelationship\": \"PARENT\"\n}",
+              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"{{programme_id}}\",\n    \"admissionDate\": \"2024-09-01\",\n    \"guardianName\": \"Mr. Robert Johnson\",\n    \"guardianPhone\": \"+2348023456789\",\n    \"guardianEmail\": \"robert.johnson@email.com\",\n    \"guardianRelationship\": \"PARENT\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -658,7 +713,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"<programme-uuid>\",\n    \"admissionDate\": \"2024-09-01\"\n}",
+              "raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"dateOfBirth\": \"2005-03-15\",\n    \"gender\": \"FEMALE\",\n    \"nationality\": \"NG\",\n    \"email\": \"alice.johnson@studentportal.edu\",\n    \"phone\": \"+2348012345678\",\n    \"programmeId\": \"{{programme_id}}\",\n    \"admissionDate\": \"2024-09-01\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -677,7 +732,7 @@
                 "{{student_id}}"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Update an existing student."
+            "description": "Update an existing student. Supports partial updates - only send fields you want to change."
           }
         },
         {
@@ -727,7 +782,7 @@
                 "{{student_id}}"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Delete a student."
+            "description": "Delete a student and their associated user account."
           }
         },
         {
@@ -758,7 +813,7 @@
                 "bulk-import"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Import students in bulk from a file."
+            "description": "Import students in bulk from a CSV file. Required columns: firstName, lastName, gender, dateOfBirth, programmeId, admissionDate. Optional: email, phone, nationality, guardianName, guardianPhone, guardianEmail, guardianRelationship."
           }
         },
         {
@@ -779,7 +834,7 @@
                 "<job-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get the status of a bulk import job."
+            "description": "Get the status of a bulk import job by its job ID."
           }
         },
         {
@@ -811,7 +866,7 @@
                 "photo"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Upload a student's photo."
+            "description": "Upload a student's photo. Accepted formats: JPEG, PNG. Max size: 5MB."
           }
         },
         {
@@ -832,7 +887,7 @@
                 "photo"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a student's photo."
+            "description": "Get a student's photo URL."
           }
         },
         {
@@ -853,7 +908,7 @@
                 "guardian"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a student's guardian information."
+            "description": "Get a student's guardian information."
           }
         },
         {
@@ -883,7 +938,7 @@
                 "guardian"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Create or update a student's guardian."
+            "description": "Create or update a student's guardian information."
           }
         },
         {
@@ -904,7 +959,7 @@
                 "academic-summary"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a student's complete academic summary."
+            "description": "Get a student's complete academic summary including average score, attendance rate, and per-subject breakdown."
           }
         }
       ]
@@ -920,7 +975,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"David\",\n    \"lastName\": \"Williams\",\n    \"email\": \"david.williams@studentportal.edu\",\n    \"phone\": \"+2348012340001\",\n    \"department\": \"Computer Science\",\n    \"role\": \"LECTURER\"\n}",
+              "raw": "{\n    \"firstName\": \"David\",\n    \"lastName\": \"Williams\",\n    \"email\": \"david.williams@studentportal.edu\",\n    \"phone\": \"+2348012340001\",\n    \"department\": \"Computer Science\",\n    \"designation\": \"Senior Lecturer\",\n    \"role\": \"LECTURER\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -938,7 +993,7 @@
                 "staff"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new staff member."
+            "description": "Create a new staff member. A user account is created automatically and credentials are sent via email."
           }
         },
         {
@@ -997,7 +1052,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"David\",\n    \"lastName\": \"Williams\",\n    \"email\": \"david.williams@studentportal.edu\",\n    \"phone\": \"+2348012340001\",\n    \"department\": \"Computer Science\",\n    \"role\": \"SENIOR_LECTURER\"\n}",
+              "raw": "{\n    \"firstName\": \"David\",\n    \"lastName\": \"Williams\",\n    \"email\": \"david.williams@studentportal.edu\",\n    \"phone\": \"+2348012340001\",\n    \"department\": \"Computer Science\",\n    \"designation\": \"Senior Lecturer\",\n    \"role\": \"LECTURER\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1016,7 +1071,7 @@
                 "{{staff_id}}"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Update a staff member."
+            "description": "Update an existing staff member."
           }
         },
         {
@@ -1209,7 +1264,7 @@
                     "grades"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Submit a grade for a student."
+                "description": "Submit a grade for a student."
               }
             },
             {
@@ -1246,7 +1301,7 @@
                     }
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List grades with optional filters."
+                "description": "List grades with optional filters (studentId, subjectId, periodId)."
               }
             },
             {
@@ -1268,7 +1323,7 @@
                     "<student-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Get all grades for a specific student."
+                "description": "Get all grades for a specific student."
               }
             },
             {
@@ -1298,7 +1353,7 @@
                     "<grade-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Update an existing grade."
+                "description": "Update an existing grade."
               }
             },
             {
@@ -1328,7 +1383,7 @@
                     "publish"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Publish all grades for a course in a semester."
+                "description": "Publish all grades for a course in a semester (moves from DRAFT to PUBLISHED)."
               }
             }
           ]
@@ -1355,7 +1410,7 @@
                     "<student-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Get a student's GPA."
+                "description": "Get a student's GPA calculated from published grades."
               }
             }
           ]
@@ -1380,7 +1435,7 @@
                     "subjects"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List all courses/subjects."
+                "description": "List all courses/subjects."
               }
             },
             {
@@ -1409,7 +1464,7 @@
                     "subjects"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new course/subject."
+                "description": "Create a new course/subject."
               }
             },
             {
@@ -1439,7 +1494,7 @@
                     "<subject-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Update a course/subject."
+                "description": "Update a course/subject."
               }
             }
           ]
@@ -1464,7 +1519,7 @@
                     "programmes"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List all programmes."
+                "description": "List all programmes."
               }
             },
             {
@@ -1474,7 +1529,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"name\": \"Data Science\",\n    \"code\": \"DS\"\n}",
+                  "raw": "{\n    \"name\": \"BSc Data Science\",\n    \"code\": \"BSC-DS\",\n    \"durationYears\": 4,\n    \"description\": \"Bachelor of Science in Data Science\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1493,8 +1548,24 @@
                     "programmes"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new programme."
-              }
+                "description": "Create a new programme."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var json = pm.response.json();",
+                      "    if (json.data && json.data.id) {",
+                      "        pm.collectionVariables.set('programme_id', json.data.id);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
             },
             {
               "name": "Update Programme",
@@ -1503,7 +1574,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"name\": \"Data Science\",\n    \"code\": \"DS\"\n}",
+                  "raw": "{\n    \"name\": \"BSc Data Science\",\n    \"code\": \"BSC-DS\",\n    \"durationYears\": 4,\n    \"description\": \"Bachelor of Science in Data Science\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1511,7 +1582,7 @@
                   }
                 },
                 "url": {
-                  "raw": "{{base_url}}/api/v1/academic/programmes/<programme-uuid>",
+                  "raw": "{{base_url}}/api/v1/academic/programmes/{{programme_id}}",
                   "host": [
                     "{{base_url}}"
                   ],
@@ -1520,10 +1591,10 @@
                     "v1",
                     "academic",
                     "programmes",
-                    "<programme-uuid>"
+                    "{{programme_id}}"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Update a programme."
+                "description": "Update an existing programme. Programme ID is auto-populated after creation."
               }
             }
           ]
@@ -1548,7 +1619,7 @@
                     "periods"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List all academic periods/semesters."
+                "description": "List all academic periods/semesters."
               }
             },
             {
@@ -1577,7 +1648,7 @@
                     "periods"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new academic period."
+                "description": "Create a new academic period/semester."
               }
             },
             {
@@ -1607,7 +1678,7 @@
                     "<period-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Update an academic period."
+                "description": "Update an academic period."
               }
             },
             {
@@ -1629,7 +1700,7 @@
                     "set-current"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Set the current active academic period."
+                "description": "Set the current active academic period."
               }
             }
           ]
@@ -1655,7 +1726,7 @@
                     "<student-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Download a student's transcript."
+                "description": "Download a student's transcript as a text file."
               }
             }
           ]
@@ -1691,7 +1762,7 @@
                 "attendance"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Record attendance for a single student.\n\nStatus values: PRESENT, ABSENT, LATE, EXCUSED"
+            "description": "Record attendance for a single student.\n\nStatus values: PRESENT, ABSENT, LATE, EXCUSED"
           }
         },
         {
@@ -1720,7 +1791,7 @@
                 "bulk"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Record attendance for multiple students at once."
+            "description": "Record attendance for multiple students at once."
           }
         },
         {
@@ -1764,7 +1835,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** List attendance records with filters."
+            "description": "List attendance records with filters (studentId, sessionId, date)."
           }
         },
         {
@@ -1785,7 +1856,7 @@
                 "<student-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get all attendance records for a student."
+            "description": "Get all attendance records for a student."
           }
         },
         {
@@ -1807,7 +1878,7 @@
                 "summary"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get attendance summary for a student."
+            "description": "Get attendance summary for a student (per-subject breakdown)."
           }
         },
         {
@@ -1836,7 +1907,7 @@
                 "<attendance-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Update an attendance record."
+            "description": "Update an attendance record."
           }
         },
         {
@@ -1858,7 +1929,7 @@
                 "<class-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get attendance report for a class."
+            "description": "Get attendance report for a class."
           }
         },
         {
@@ -1880,7 +1951,7 @@
                 "<student-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Download attendance report as PDF."
+            "description": "Download attendance report as a text file."
           }
         },
         {
@@ -1900,7 +1971,7 @@
                 "alerts"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get absence alerts."
+            "description": "Get absence alerts for students below the attendance threshold."
           }
         },
         {
@@ -1930,7 +2001,7 @@
                 "threshold"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Update the attendance alert threshold percentage."
+            "description": "Update the attendance alert threshold percentage."
           }
         }
       ]
@@ -2372,7 +2443,7 @@
                     "rooms"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List all rooms/venues."
+                "description": "List all rooms/venues."
               }
             },
             {
@@ -2401,7 +2472,7 @@
                     "rooms"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new room/venue."
+                "description": "Create a new room/venue."
               }
             }
           ]
@@ -2435,7 +2506,7 @@
                     "exams"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Schedule an exam."
+                "description": "Schedule an exam."
               }
             },
             {
@@ -2465,7 +2536,7 @@
                     }
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List all exams."
+                "description": "List all exams."
               }
             },
             {
@@ -2495,7 +2566,7 @@
                     "<exam-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Update an exam."
+                "description": "Update an exam."
               }
             },
             {
@@ -2516,7 +2587,7 @@
                     "<exam-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Delete an exam."
+                "description": "Delete an exam."
               }
             }
           ]
@@ -2550,7 +2621,7 @@
                     "timetable"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Create a timetable entry.\n\nDays: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY"
+                "description": "Create a timetable entry.\n\nDays: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY"
               }
             },
             {
@@ -2582,7 +2653,7 @@
                     }
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** List timetable entries with optional filters."
+                "description": "List timetable entries with optional filters (classId, staffId)."
               }
             },
             {
@@ -2612,7 +2683,7 @@
                     "<timetable-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Update a timetable entry."
+                "description": "Update a timetable entry."
               }
             },
             {
@@ -2633,7 +2704,7 @@
                     "<timetable-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Delete a timetable entry."
+                "description": "Delete a timetable entry."
               }
             },
             {
@@ -2655,7 +2726,7 @@
                     "<class-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Get timetable for a specific class."
+                "description": "Get timetable for a specific class."
               }
             },
             {
@@ -2677,7 +2748,7 @@
                     "<staff-uuid>"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Get timetable for a specific staff member."
+                "description": "Get timetable for a specific staff member."
               }
             },
             {
@@ -2707,7 +2778,7 @@
                     "check-conflicts"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Check for scheduling conflicts."
+                "description": "Check for scheduling conflicts (venue, staff, class)."
               }
             },
             {
@@ -2729,7 +2800,7 @@
                     "export.ics"
                   ]
                 },
-                "description": "**\u26a0 STUB \u2014 Not implemented.** Export timetable entry as iCalendar file."
+                "description": "Export timetable entry as iCalendar file."
               }
             }
           ]
@@ -2757,7 +2828,7 @@
                 "schedules"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** List all fee schedules."
+            "description": "List all fee schedules."
           }
         },
         {
@@ -2767,7 +2838,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"2024/2025 Tuition\",\n    \"amount\": 570000.00,\n    \"periodId\": \"<semester-uuid>\"\n}",
+              "raw": "{\n    \"programmeId\": \"<programme-uuid>\",\n    \"semesterId\": \"<semester-uuid>\",\n    \"totalAmount\": 570000.00,\n    \"components\": \"[{\\\"name\\\":\\\"Tuition\\\",\\\"amount\\\":400000},{\\\"name\\\":\\\"Lab Fee\\\",\\\"amount\\\":100000},{\\\"name\\\":\\\"Library\\\",\\\"amount\\\":70000}]\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2786,7 +2857,7 @@
                 "schedules"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Create a new fee schedule."
+            "description": "Create a new fee schedule."
           }
         },
         {
@@ -2796,7 +2867,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"2024/2025 Tuition\",\n    \"amount\": 600000.00,\n    \"periodId\": \"<semester-uuid>\"\n}",
+              "raw": "{\n    \"programmeId\": \"<programme-uuid>\",\n    \"semesterId\": \"<semester-uuid>\",\n    \"totalAmount\": 600000.00,\n    \"components\": \"[{\\\"name\\\":\\\"Tuition\\\",\\\"amount\\\":420000},{\\\"name\\\":\\\"Lab Fee\\\",\\\"amount\\\":100000},{\\\"name\\\":\\\"Library\\\",\\\"amount\\\":80000}]\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2816,7 +2887,7 @@
                 "<schedule-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Update a fee schedule."
+            "description": "Update a fee schedule."
           }
         },
         {
@@ -2845,7 +2916,7 @@
                 "invoices"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Generate an invoice for a student."
+            "description": "Generate an invoice for a student."
           }
         },
         {
@@ -2855,7 +2926,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"scheduleId\": \"<schedule-uuid>\",\n    \"periodId\": \"<semester-uuid>\"\n}",
+              "raw": "{\n    \"scheduleId\": \"<schedule-uuid>\",\n    \"semesterId\": \"<semester-uuid>\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2875,7 +2946,7 @@
                 "bulk"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Generate invoices for all students in a programme."
+            "description": "Generate invoices for all students in a programme."
           }
         },
         {
@@ -2915,7 +2986,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** List invoices with filters.\n\nStatus values: PENDING, PARTIAL, PAID, OVERDUE, CANCELLED"
+            "description": "List invoices with filters.\n\nStatus values: PENDING, PARTIAL, PAID, OVERDUE, CANCELLED"
           }
         },
         {
@@ -2936,7 +3007,7 @@
                 "<invoice-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a single invoice."
+            "description": "Get a single invoice."
           }
         },
         {
@@ -2958,7 +3029,7 @@
                 "<student-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get all invoices for a student."
+            "description": "Get all invoices for a student."
           }
         },
         {
@@ -2988,7 +3059,7 @@
                 "initiate"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Initiate a payment via a gateway.\n\nGateways: PAYSTACK, FLUTTERWAVE"
+            "description": "Initiate a payment via a gateway.\n\nGateways: PAYSTACK, FLUTTERWAVE"
           }
         },
         {
@@ -3024,7 +3095,7 @@
                 "webhook"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Payment gateway webhook endpoint.\n\nRequires `X-Gateway-Signature` header for verification."
+            "description": "Payment gateway webhook endpoint.\n\nRequires `X-Gateway-Signature` header for verification."
           }
         },
         {
@@ -3045,7 +3116,7 @@
                 "<payment-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get a single payment."
+            "description": "Get a single payment."
           }
         },
         {
@@ -3066,7 +3137,7 @@
                 "<payment-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Download a payment receipt."
+            "description": "Download a payment receipt."
           }
         },
         {
@@ -3087,7 +3158,7 @@
                 "summary"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get fee collection summary."
+            "description": "Get fee collection summary."
           }
         },
         {
@@ -3108,7 +3179,7 @@
                 "outstanding"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get all outstanding fee balances."
+            "description": "Get all outstanding fee balances."
           }
         }
       ]

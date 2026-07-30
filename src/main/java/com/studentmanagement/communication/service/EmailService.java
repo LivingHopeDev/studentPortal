@@ -49,6 +49,29 @@ public class EmailService {
     }
 
     @Async
+    public void sendMfaCode(String to, String name, String code) {
+        try {
+            Context context = new Context();
+            context.setVariable("name", name);
+            context.setVariable("code", code);
+
+            String html = templateEngine.process("mail/mfa-code", context);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject("Your MFA Code - Student Management Portal");
+            helper.setFrom(fromAddress);
+            helper.setText(html, true);
+
+            mailSender.send(message);
+            log.info("MFA code sent to: {}", to);
+        } catch (Exception e) {
+            log.error("Failed to send MFA code to {}: {}", to, e.getMessage());
+        }
+    }
+
+    @Async
     public void sendCredentialsEmail(String to, String name, String studentNo, String password) {
         try {
             Context context = new Context();

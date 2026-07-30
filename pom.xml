@@ -153,11 +153,11 @@
             <version>${passay.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>dev.samstevens.totp</groupId>-->
-<!--            <artifactId>totp-spring-boot-starter</artifactId>-->
-<!--            <version>${totp.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>dev.samstevens.totp</groupId>
+            <artifactId>totp-spring-boot-starter</artifactId>
+            <version>${totp.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

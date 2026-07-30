@@ -1,5 +1,10 @@
 package com.studentmanagement.student.service;
 
+import com.studentmanagement.academic.model.Grade;
+import com.studentmanagement.academic.repository.GradeRepository;
+import com.studentmanagement.academic.repository.SemesterRepository;
+import com.studentmanagement.attendance.model.SubjectAttendance;
+import com.studentmanagement.attendance.repository.SubjectAttendanceRepository;
 import com.studentmanagement.auth.model.User;
 import com.studentmanagement.auth.model.VerificationToken;
 import com.studentmanagement.auth.repository.UserRepository;
@@ -11,30 +16,41 @@ import com.studentmanagement.common.exception.BadRequestException;
 import com.studentmanagement.common.exception.DuplicateResourceException;
 import com.studentmanagement.common.exception.ResourceNotFoundException;
 import com.studentmanagement.communication.service.EmailService;
-import com.studentmanagement.student.dto.EnrolmentRequest;
-import com.studentmanagement.student.dto.StudentResponse;
-import com.studentmanagement.student.dto.StudentStatusRequest;
+import com.studentmanagement.student.dto.*;
 import com.studentmanagement.student.model.GuardianInfo;
 import com.studentmanagement.student.model.Programme;
 import com.studentmanagement.student.model.Student;
 import com.studentmanagement.student.repository.GuardianInfoRepository;
 import com.studentmanagement.student.repository.ProgrammeRepository;
 import com.studentmanagement.student.repository.StudentRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.Year;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StudentService {
@@ -46,15 +62,38 @@ public class StudentService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final AuthService authService;
+    private final GradeRepository gradeRepository;
+    private final SubjectAttendanceRepository subjectAttendanceRepository;
+    private final SemesterRepository semesterRepository;
+
+    @Value("${app.upload.path:uploads}")
+    private String uploadPath;
+
+    private final ConcurrentHashMap<UUID, BulkImportResponse> importJobs = new ConcurrentHashMap<>();
+
+    @PostConstruct
+    public void init() {
+        try {
+            Files.createDirectories(Paths.get(uploadPath, "photos"));
+        } catch (IOException e) {
+            log.warn("Could not create upload directory: {}", e.getMessage());
+        }
+    }
 
     @Transactional
     public StudentResponse enrolStudent(EnrolmentRequest request) {
+        log.info("Enrolling student: {} {} <{}> into programme: {}",
+                request.getFirstName(), request.getLastName(), request.getEmail(), request.getProgrammeId());
         if (request.getEmail() != null && studentRepository.existsByEmail(request.getEmail())) {
+            log.warn("Enrolment failed: email already registered: {}", request.getEmail());
             throw new DuplicateResourceException("Email already registered");
         }
 
         Programme programme = programmeRepository.findById(request.getProgrammeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Programme", "id", request.getProgrammeId()));
+                .orElseThrow(() -> {
+                    log.warn("Enrolment failed: programme not found: {}", request.getProgrammeId());
+                    return new ResourceNotFoundException("Programme", "id", request.getProgrammeId());
+                });
 
         String tempPassword = generateRandomPassword();
         User user = User.builder()
@@ -106,15 +145,22 @@ public class StudentService {
             emailService.sendVerificationEmail(request.getEmail(), user.getFullName(), verificationToken.getToken());
         }
 
+        log.info("Student enrolled successfully: id={}, studentNo={}, email={}",
+                student.getId(), student.getStudentNo(), student.getEmail());
         return mapToResponse(student, programme.getName());
     }
 
     @Transactional
     public StudentResponse activateStudent(UUID id, StudentStatusRequest request) {
+        log.info("Activating student: {}", id);
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
+                .orElseThrow(() -> {
+                    log.warn("Activation failed: student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
 
         if (student.getStatus() != StudentStatus.PENDING) {
+            log.warn("Activation failed: student {} status is {}, not PENDING", id, student.getStatus());
             throw new BadRequestException("Only PENDING students can be activated");
         }
 
@@ -123,10 +169,12 @@ public class StudentService {
         try {
             newStatus = StudentStatus.valueOf(statusStr);
         } catch (IllegalArgumentException e) {
+            log.warn("Activation failed: invalid status value: {}", request.getStatus());
             throw new BadRequestException("Invalid status: " + request.getStatus());
         }
 
         if (newStatus != StudentStatus.ACTIVE) {
+            log.warn("Activation failed: requested status {} is not ACTIVE", newStatus);
             throw new BadRequestException("Only ACTIVE status is allowed for activation");
         }
 
@@ -150,15 +198,86 @@ public class StudentService {
         }
 
         student = studentRepository.save(student);
+        log.info("Student activated successfully: id={}, studentNo={}", student.getId(), student.getStudentNo());
 
         return mapToResponse(student,
                 student.getProgramme() != null ? student.getProgramme().getName() : null);
     }
 
+    @Transactional
+    public StudentResponse updateStudent(UUID id, UpdateStudentRequest request) {
+        log.info("Updating student: {}", id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Update failed: student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
+
+        if (request.getFirstName() != null) student.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) student.setLastName(request.getLastName());
+        if (request.getDateOfBirth() != null) student.setDateOfBirth(LocalDate.parse(request.getDateOfBirth()));
+        if (request.getGender() != null) student.setGender(Gender.valueOf(request.getGender().toUpperCase()));
+        if (request.getNationality() != null) student.setNationality(request.getNationality());
+        if (request.getEmail() != null) student.setEmail(request.getEmail());
+        if (request.getPhone() != null) student.setPhone(request.getPhone());
+        if (request.getAdmissionDate() != null) student.setAdmissionDate(LocalDate.parse(request.getAdmissionDate()));
+
+        if (request.getProgrammeId() != null) {
+            Programme programme = programmeRepository.findById(request.getProgrammeId())
+                    .orElseThrow(() -> {
+                        log.warn("Update failed: programme not found: {}", request.getProgrammeId());
+                        return new ResourceNotFoundException("Programme", "id", request.getProgrammeId());
+                    });
+            student.setProgramme(programme);
+        }
+
+        if (request.getEmail() != null && student.getUser() != null) {
+            student.getUser().setEmail(request.getEmail());
+            userRepository.save(student.getUser());
+        }
+
+        student = studentRepository.save(student);
+
+        if (request.getGuardianName() != null) {
+            GuardianInfo guardian = guardianInfoRepository.findByStudentId(student.getId())
+                    .orElse(GuardianInfo.builder().student(student).isPrimary(true).build());
+            guardian.setFullName(request.getGuardianName());
+            if (request.getGuardianRelationship() != null)
+                guardian.setRelationship(com.studentmanagement.common.enums.GuardianRelationship.valueOf(request.getGuardianRelationship().toUpperCase()));
+            if (request.getGuardianEmail() != null) guardian.setEmail(request.getGuardianEmail());
+            if (request.getGuardianPhone() != null) guardian.setPhone(request.getGuardianPhone());
+            guardianInfoRepository.save(guardian);
+        }
+
+        String programmeName = student.getProgramme() != null ? student.getProgramme().getName() : null;
+        log.info("Student updated successfully: {}", id);
+        return mapToResponse(student, programmeName);
+    }
+
+    @Transactional
+    public void deleteStudent(UUID id) {
+        log.info("Deleting student: {}", id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Delete failed: student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
+
+        if (student.getUser() != null) {
+            userRepository.delete(student.getUser());
+        }
+        studentRepository.delete(student);
+        log.info("Student deleted successfully: {}", id);
+    }
+
     @Transactional(readOnly = true)
     public StudentResponse getStudent(UUID id) {
+        log.debug("Fetching student by id: {}", id);
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
+                .orElseThrow(() -> {
+                    log.warn("Student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
         return mapToResponse(student,
                 student.getProgramme() != null ? student.getProgramme().getName() : null);
     }
@@ -166,6 +285,8 @@ public class StudentService {
     @Transactional(readOnly = true)
     public List<StudentResponse> listStudents(int page, int size, String sort, String status,
                                                UUID programmeId, String search) {
+        log.debug("Listing students - page: {}, size: {}, status: {}, programmeId: {}, search: {}",
+                page, size, status, programmeId, search);
         List<Student> students = studentRepository.findAll();
         List<Student> filtered = students;
 
@@ -192,6 +313,280 @@ public class StudentService {
         return filtered.stream()
                 .map(s -> mapToResponse(s, s.getProgramme() != null ? s.getProgramme().getName() : null))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public BulkImportResponse bulkImport(MultipartFile file) {
+        UUID jobId = UUID.randomUUID();
+        log.info("Processing bulk import job: {}, file: {}", jobId, file.getOriginalFilename());
+
+        List<String> errors = new ArrayList<>();
+        int total = 0;
+        int success = 0;
+        int failed = 0;
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            String header = reader.readLine();
+            if (header == null) {
+                throw new BadRequestException("CSV file is empty");
+            }
+
+            String[] columns = header.split(",");
+            String line;
+            while ((line = reader.readLine()) != null) {
+                total++;
+                try {
+                    String[] values = line.split(",");
+                    Map<String, String> row = new HashMap<>();
+                    for (int i = 0; i < columns.length && i < values.length; i++) {
+                        row.put(columns[i].trim(), values[i].trim());
+                    }
+
+                    EnrolmentRequest request = EnrolmentRequest.builder()
+                            .firstName(row.getOrDefault("firstName", ""))
+                            .lastName(row.getOrDefault("lastName", ""))
+                            .email(row.get("email"))
+                            .gender(row.getOrDefault("gender", "OTHER"))
+                            .dateOfBirth(row.getOrDefault("dateOfBirth", "2000-01-01"))
+                            .phone(row.get("phone"))
+                            .nationality(row.get("nationality"))
+                            .programmeId(UUID.fromString(row.get("programmeId")))
+                            .admissionDate(row.getOrDefault("admissionDate", LocalDate.now().toString()))
+                            .guardianName(row.get("guardianName"))
+                            .guardianPhone(row.get("guardianPhone"))
+                            .guardianEmail(row.get("guardianEmail"))
+                            .guardianRelationship(row.get("guardianRelationship"))
+                            .build();
+
+                    enrolStudent(request);
+                    success++;
+                } catch (Exception e) {
+                    failed++;
+                    errors.add("Row " + total + ": " + e.getMessage());
+                    log.warn("Bulk import row {} failed: {}", total, e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            log.error("Bulk import failed to read file: {}", e.getMessage());
+            throw new BadRequestException("Failed to read CSV file: " + e.getMessage());
+        }
+
+        BulkImportResponse response = BulkImportResponse.builder()
+                .jobId(jobId)
+                .status(failed > 0 ? (success > 0 ? "PARTIAL" : "FAILED") : "COMPLETED")
+                .total(total)
+                .success(success)
+                .failed(failed)
+                .build();
+
+        importJobs.put(jobId, response);
+        log.info("Bulk import job {} completed: {}/{}/{} (total/success/failed)", jobId, total, success, failed);
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public BulkImportResponse getBulkImportStatus(UUID jobId) {
+        BulkImportResponse job = importJobs.get(jobId);
+        if (job == null) {
+            log.warn("Bulk import job not found: {}", jobId);
+            throw new ResourceNotFoundException("BulkImportJob", "id", jobId);
+        }
+        return job;
+    }
+
+    @Transactional
+    public PhotoResponse uploadPhoto(UUID id, MultipartFile file) {
+        log.info("Uploading photo for student: {}", id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Photo upload failed: student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
+
+        if (file.isEmpty()) {
+            throw new BadRequestException("File is empty");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new BadRequestException("Only image files are allowed");
+        }
+
+        try {
+            String extension = Objects.requireNonNull(file.getOriginalFilename())
+                    .substring(file.getOriginalFilename().lastIndexOf('.'));
+            String filename = id + extension;
+            Path uploadDir = Paths.get(uploadPath, "photos");
+            Files.createDirectories(uploadDir);
+            Path targetPath = uploadDir.resolve(filename);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            String photoUrl = "/uploads/photos/" + filename;
+            student.setPhotoUrl(photoUrl);
+            studentRepository.save(student);
+
+            log.info("Photo uploaded for student: {}, path: {}", id, photoUrl);
+            return PhotoResponse.builder().photoUrl(photoUrl).build();
+        } catch (IOException e) {
+            log.error("Photo upload failed for student: {}", id, e);
+            throw new BadRequestException("Failed to upload photo: " + e.getMessage());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public PhotoResponse getPhoto(UUID id) {
+        log.debug("Getting photo for student: {}", id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Get photo failed: student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
+
+        if (student.getPhotoUrl() == null) {
+            throw new ResourceNotFoundException("Photo", "studentId", id);
+        }
+
+        return PhotoResponse.builder().photoUrl(student.getPhotoUrl()).build();
+    }
+
+    @Transactional(readOnly = true)
+    public GuardianResponse getGuardian(UUID id) {
+        log.debug("Getting guardian for student: {}", id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Get guardian failed: student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
+
+        GuardianInfo guardian = guardianInfoRepository.findByStudentId(student.getId())
+                .orElseThrow(() -> {
+                    log.warn("Guardian not found for student: {}", id);
+                    return new ResourceNotFoundException("Guardian", "studentId", id);
+                });
+
+        return GuardianResponse.builder()
+                .name(guardian.getFullName())
+                .phone(guardian.getPhone())
+                .email(guardian.getEmail())
+                .relationship(guardian.getRelationship() != null ? guardian.getRelationship().name() : null)
+                .build();
+    }
+
+    @Transactional
+    public GuardianResponse upsertGuardian(UUID id, GuardianRequest request) {
+        log.info("Upserting guardian for student: {}", id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Upsert guardian failed: student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
+
+        GuardianInfo guardian = guardianInfoRepository.findByStudentId(student.getId())
+                .orElse(GuardianInfo.builder().student(student).isPrimary(true).build());
+
+        if (request.getGuardianName() != null) guardian.setFullName(request.getGuardianName());
+        if (request.getGuardianPhone() != null) guardian.setPhone(request.getGuardianPhone());
+        if (request.getGuardianEmail() != null) guardian.setEmail(request.getGuardianEmail());
+        if (request.getGuardianRelationship() != null)
+            guardian.setRelationship(com.studentmanagement.common.enums.GuardianRelationship.valueOf(request.getGuardianRelationship().toUpperCase()));
+
+        guardian = guardianInfoRepository.save(guardian);
+
+        log.info("Guardian upserted for student: {}", id);
+        return GuardianResponse.builder()
+                .name(guardian.getFullName())
+                .phone(guardian.getPhone())
+                .email(guardian.getEmail())
+                .relationship(guardian.getRelationship() != null ? guardian.getRelationship().name() : null)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public AcademicSummaryResponse getAcademicSummary(UUID id) {
+        log.debug("Getting academic summary for student: {}", id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Academic summary failed: student not found: {}", id);
+                    return new ResourceNotFoundException("Student", "id", id);
+                });
+
+        List<Grade> grades = gradeRepository.findByStudentId(student.getId());
+        List<SubjectAttendance> attendanceRecords = subjectAttendanceRepository.findByStudentId(student.getId());
+
+        double averageScore = grades.stream()
+                .filter(g -> g.getScore() != null)
+                .mapToDouble(g -> g.getScore().doubleValue())
+                .average()
+                .orElse(0.0);
+
+        double attendanceRate = 0.0;
+        if (!attendanceRecords.isEmpty()) {
+            long present = attendanceRecords.stream()
+                    .filter(a -> a.getStatus() == com.studentmanagement.common.enums.AttendanceStatus.PRESENT)
+                    .count();
+            attendanceRate = (double) present / attendanceRecords.size() * 100.0;
+        }
+
+        Map<UUID, List<Grade>> gradesByCourse = grades.stream()
+                .filter(g -> g.getCourse() != null)
+                .collect(Collectors.groupingBy(g -> g.getCourse().getId()));
+
+        Map<UUID, List<SubjectAttendance>> attendanceByCourse = attendanceRecords.stream()
+                .filter(a -> a.getCourse() != null)
+                .collect(Collectors.groupingBy(a -> a.getCourse().getId()));
+
+        Set<UUID> allCourseIds = new HashSet<>();
+        allCourseIds.addAll(gradesByCourse.keySet());
+        allCourseIds.addAll(attendanceByCourse.keySet());
+
+        List<AcademicSummaryResponse.SubjectSummary> subjects = new ArrayList<>();
+        for (UUID courseId : allCourseIds) {
+            List<Grade> courseGrades = gradesByCourse.getOrDefault(courseId, List.of());
+            List<SubjectAttendance> courseAttendance = attendanceByCourse.getOrDefault(courseId, List.of());
+
+            String subjectName = courseGrades.stream()
+                    .filter(g -> g.getCourse() != null)
+                    .map(g -> g.getCourse().getName())
+                    .findFirst()
+                    .orElseGet(() -> courseAttendance.stream()
+                            .filter(a -> a.getCourse() != null)
+                            .map(a -> a.getCourse().getName())
+                            .findFirst()
+                            .orElse("Unknown"));
+
+            Double score = courseGrades.stream()
+                    .filter(g -> g.getScore() != null)
+                    .findFirst()
+                    .map(g -> g.getScore().doubleValue())
+                    .orElse(null);
+
+            String grade = courseGrades.stream()
+                    .filter(g -> g.getLetterGrade() != null)
+                    .findFirst()
+                    .map(Grade::getLetterGrade)
+                    .orElse(null);
+
+            double subjectAttendanceRate = 0.0;
+            if (!courseAttendance.isEmpty()) {
+                long present = courseAttendance.stream()
+                        .filter(a -> a.getStatus() == com.studentmanagement.common.enums.AttendanceStatus.PRESENT)
+                        .count();
+                subjectAttendanceRate = (double) present / courseAttendance.size() * 100.0;
+            }
+
+            subjects.add(AcademicSummaryResponse.SubjectSummary.builder()
+                    .subjectName(subjectName)
+                    .score(score)
+                    .grade(grade)
+                    .attendancePercentage(subjectAttendanceRate)
+                    .build());
+        }
+
+        return AcademicSummaryResponse.builder()
+                .averageScore(Math.round(averageScore * 100.0) / 100.0)
+                .attendanceRate(Math.round(attendanceRate * 100.0) / 100.0)
+                .subjects(subjects)
+                .build();
     }
 
     private String generateStudentNumber() {
@@ -234,4 +629,5 @@ public class StudentService {
                 .status(student.getStatus().name())
                 .build();
     }
+
 }
