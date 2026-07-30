@@ -3205,7 +3205,7 @@
                 "dashboard"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get dashboard statistics."
+            "description": "Get dashboard statistics."
           }
         },
         {
@@ -3225,7 +3225,7 @@
                 "enrolment"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get enrolment report."
+            "description": "Get enrolment report.\n\nShows total, active, graduated, and suspended student counts."
           }
         },
         {
@@ -3272,7 +3272,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Export enrolment report.\n\nFormats: PDF, CSV, XLSX"
+            "description": "Export enrolment report.\n\nFormats: CSV"
           }
         },
         {
@@ -3292,7 +3292,7 @@
                 "attendance"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get attendance report."
+            "description": "Get attendance report.\n\nShows overall percentage, total sessions, present and absent counts."
           }
         },
         {
@@ -3339,7 +3339,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Export attendance report."
+            "description": "Export attendance report as CSV."
           }
         },
         {
@@ -3359,7 +3359,7 @@
                 "grades"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get grade report."
+            "description": "Get grade report.\n\nShows total grades, average score, and A/B/C/D/E/F distribution."
           }
         },
         {
@@ -3406,7 +3406,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Export grade report."
+            "description": "Export grade report as CSV."
           }
         },
         {
@@ -3426,7 +3426,7 @@
                 "fees"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Get fee report."
+            "description": "Get fee report.\n\nShows total expected, collected, outstanding, paid and unpaid counts."
           }
         },
         {
@@ -3473,7 +3473,7 @@
                 }
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Export fee report."
+            "description": "Export fee report as CSV."
           }
         },
         {
@@ -3502,7 +3502,7 @@
                 "custom"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Run a custom report."
+            "description": "Run a custom report.\n\nCreates an async job and returns a jobId for polling. Supports queryType: student_enrolment, attendance_summary, grade_distribution, fee_collection."
           }
         },
         {
@@ -3523,7 +3523,7 @@
                 "<job-uuid>"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Poll the status of a custom report job."
+            "description": "Poll the status of a custom report job.\n\nReturns PENDING, RUNNING, COMPLETED, or FAILED."
           }
         },
         {
@@ -3545,7 +3545,7 @@
                 "download"
               ]
             },
-            "description": "**\u26a0 STUB \u2014 Not implemented.** Download a completed custom report."
+            "description": "Download a completed custom report."
           }
         }
       ]

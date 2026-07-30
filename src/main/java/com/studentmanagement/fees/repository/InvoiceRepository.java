@@ -20,4 +20,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     List<Invoice> findByStatusOrderByCreatedAtDesc(InvoiceStatus status);
 
     List<Invoice> findAllByOrderByCreatedAtDesc();
+
+    long countByStatus(InvoiceStatus status);
 }

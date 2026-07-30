@@ -1,5 +1,6 @@
 package com.studentmanagement.student.repository;
 
+import com.studentmanagement.common.enums.StudentStatus;
 import com.studentmanagement.student.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -20,4 +21,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
     boolean existsByStudentNo(String studentNo);
 
     List<Student> findByProgrammeId(UUID programmeId);
+
+    long countByStatus(StudentStatus status);
 }

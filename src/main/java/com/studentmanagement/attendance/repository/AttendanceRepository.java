@@ -2,6 +2,7 @@ package com.studentmanagement.attendance.repository;
 
 import com.studentmanagement.attendance.model.Attendance;
 import java.time.LocalDate;
+import com.studentmanagement.common.enums.AttendanceStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,4 +20,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID> {
 
     List<Attendance> findByStudentClassId(UUID classId);
 
+    long countByStatus(AttendanceStatus status);
 }

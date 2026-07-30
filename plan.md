@@ -54,8 +54,8 @@ All 14 endpoints implemented across Schedules, Invoices, Payments, and Reports.
 ## 9. Scheduling — ✅ complete
 All 14 endpoints implemented across Rooms, Exams, and Timetable (including ICS export and conflict checking).
 
-## 10. Reports
-11 endpoints + Dashboard — ❌ all stub.
+## 10. Reports — ✅ complete
+All 11 endpoints + Dashboard implemented across Enrolment, Attendance, Grades, Fees, Custom Reports, and Dashboard.
 
 ---
 

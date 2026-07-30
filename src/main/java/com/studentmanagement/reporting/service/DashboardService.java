@@ -1,10 +1,8 @@
 package com.studentmanagement.reporting.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import com.studentmanagement.reporting.dto.DashboardData;
 
-@Slf4j
-@Service
-public class DashboardService {
+public interface DashboardService {
 
+    DashboardData getDashboard();
 }
