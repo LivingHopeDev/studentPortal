@@ -447,6 +447,8 @@ All responses (success **and** error) must use this envelope:
     "user": {
       "id": "uuid",
       "email": "admin@school.edu",
+      "firstName": "Jane",
+      "lastName": "Doe",
       "fullName": "Jane Doe",
       "role": "SCHOOL_ADMIN",
       "mfaEnabled": true

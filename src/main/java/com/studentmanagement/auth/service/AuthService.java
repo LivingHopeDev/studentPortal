@@ -2,6 +2,7 @@ package com.studentmanagement.auth.service;
 
 import com.studentmanagement.auth.dto.*;
 import com.studentmanagement.auth.model.User;
+import com.studentmanagement.auth.model.VerificationToken;
 
 import java.util.List;
 import java.util.UUID;

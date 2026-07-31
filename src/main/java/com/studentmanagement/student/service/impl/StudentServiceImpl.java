@@ -102,6 +102,8 @@ public class StudentServiceImpl implements StudentService {
         User user = User.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(tempPassword))
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .fullName(request.getFirstName() + " " + request.getLastName())
                 .role("STUDENT")
                 .status(UserStatus.PENDING)

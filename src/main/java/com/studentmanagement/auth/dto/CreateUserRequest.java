@@ -12,7 +12,10 @@ import lombok.*;
 public class CreateUserRequest {
 
     @NotBlank
-    private String fullName;
+    private String firstName;
+
+    @NotBlank
+    private String lastName;
 
     @NotBlank @Email
     private String email;

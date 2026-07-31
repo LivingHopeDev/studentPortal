@@ -11,4 +11,6 @@ public interface SemesterRepository extends JpaRepository<Semester, UUID> {
 
     Optional<Semester> findByIsCurrentTrue();
 
+    Optional<Semester> findByCode(String code);
+
 }

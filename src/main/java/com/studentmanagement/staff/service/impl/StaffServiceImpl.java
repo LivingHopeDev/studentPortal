@@ -81,6 +81,8 @@ public class StaffServiceImpl implements StaffService {
         User user = User.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(defaultPassword))
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .fullName(request.getFirstName() + " " + request.getLastName())
                 .role(request.getRole() != null ? request.getRole() : "STAFF")
                 .status(UserStatus.ACTIVE)

@@ -30,6 +30,13 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    @Getter(AccessLevel.NONE)
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
@@ -65,4 +72,11 @@ public class User {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    public String getFullName() {
+        if (firstName != null && lastName != null) {
+            return firstName + " " + lastName;
+        }
+        return fullName;
+    }
 }

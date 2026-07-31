@@ -233,7 +233,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
-        log.info("Creating user: {} <{}>", request.getFullName(), request.getEmail());
+        log.info("Creating user: {} {} <{}>", request.getFirstName(), request.getLastName(), request.getEmail());
 
         if (userRepository.existsByEmail(request.getEmail())) {
             log.warn("User creation failed: email already exists: {}", request.getEmail());
@@ -243,7 +243,9 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .fullName(request.getFullName())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .fullName(request.getFirstName() + " " + request.getLastName())
                 .role(request.getRole() != null ? request.getRole() : "STAFF")
                 .status(com.studentmanagement.common.enums.UserStatus.ACTIVE)
                 .emailVerified(false)
@@ -354,6 +356,8 @@ public class AuthServiceImpl implements AuthService {
         return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .fullName(user.getFullName())
                 .role(user.getRole())
                 .mfaEnabled(user.getMfaEnabled())

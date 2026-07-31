@@ -532,9 +532,18 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private User saveUser(String email, String hash, String fullName, String role, Instant now) {
+        String firstName = fullName;
+        String lastName = fullName;
+        int spaceIdx = fullName.indexOf(' ');
+        if (spaceIdx > 0) {
+            firstName = fullName.substring(0, spaceIdx);
+            lastName = fullName.substring(spaceIdx + 1);
+        }
         User u = User.builder()
             .email(email)
             .passwordHash(hash)
+            .firstName(firstName)
+            .lastName(lastName)
             .fullName(fullName)
             .role(role)
             .mfaEnabled(false)

@@ -450,7 +450,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"fullName\": \"New User\",\n    \"email\": \"new.user@studentportal.edu\",\n    \"password\": \"P@ssw0rd\",\n    \"role\": \"STUDENT\"\n}",
+              "raw": "{\n    \"firstName\": \"New\",\n    \"lastName\": \"User\",\n    \"email\": \"new.user@studentportal.edu\",\n    \"password\": \"P@ssw0rd\",\n    \"role\": \"STUDENT\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
