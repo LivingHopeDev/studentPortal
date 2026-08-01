@@ -27,3 +27,5 @@
 2026-07-31 09:14:08.470 [main] INFO  o.a.coyote.http11.Http11NioProtocol [] - Starting ProtocolHandler ["http-nio-8080"]
 2026-07-31 09:14:08.585 [main] INFO  c.s.StudentManagementApplication [] - Started StudentManagementApplication in 30.088 seconds (process running for 33.919)
 2026-07-31 09:14:09.037 [main] INFO  c.s.common.seed.DataSeeder [] - Seed data already exists — skipping
+2026-07-31 09:32:53.221 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [] - HikariPool-1 - Shutdown initiated...
+2026-07-31 09:32:53.602 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [] - HikariPool-1 - Shutdown completed.
